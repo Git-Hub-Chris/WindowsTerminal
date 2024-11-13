@@ -779,6 +779,9 @@ void SettingsLoader::_parseFragment(const winrt::hstring& source, const std::str
         }
     }
 
+    // Build a FragmentSettings from the ParsedSettings
+    // and register it to the SettingsLoader after we're done
+    auto fragmentSettings = winrt::make_self<FragmentSettings>(source);
     for (const auto& fragmentProfile : settings.profiles)
     {
         if (const auto updates = fragmentProfile->Updates(); updates != winrt::guid{})
@@ -787,25 +790,34 @@ void SettingsLoader::_parseFragment(const winrt::hstring& source, const std::str
             {
                 it->second->AddMostImportantParent(fragmentProfile);
             }
+            fragmentSettings->ModifiedProfiles().Append(*fragmentProfile);
         }
         else
         {
             _addUserProfileParent(fragmentProfile);
+            fragmentSettings->NewProfiles().Append(*fragmentProfile);
         }
     }
 
     // STAGED COLORS are processed here: we merge them into the partially-loaded
     // settings directly so that we can resolve conflicts between user-generated
     // color schemes and fragment-originated ones.
-    for (const auto& fragmentColorScheme : settings.colorSchemes)
+    for (const auto& [_, fragmentColorScheme] : settings.colorSchemes)
     {
-        _addOrMergeUserColorScheme(fragmentColorScheme.second);
+        if (_addOrMergeUserColorScheme(fragmentColorScheme))
+        {
+            // only register schemes that were successfully added
+            fragmentSettings->ColorSchemes().Append(*fragmentColorScheme);
+
+            // TODO CARLOS: not sure what we want to do about the ones that weren't added
+        }
     }
 
     // Add the parsed fragment globals as a parent of the user's settings.
     // Later, in FinalizeInheritance, this will result in the action map from
     // the fragments being applied before the user's own settings.
     userSettings.globals->AddLeastImportantParent(settings.globals);
+    fragmentExtensions.emplace_back(std::move(*fragmentSettings));
 }
 
 SettingsLoader::JsonSettings SettingsLoader::_parseJson(const std::string_view& content)
@@ -905,7 +917,8 @@ void SettingsLoader::_addUserProfileParent(const winrt::com_ptr<implementation::
     }
 }
 
-void SettingsLoader::_addOrMergeUserColorScheme(const winrt::com_ptr<implementation::ColorScheme>& newScheme)
+// returns true if the scheme was successfully added, otherwise false
+bool SettingsLoader::_addOrMergeUserColorScheme(const winrt::com_ptr<implementation::ColorScheme>& newScheme)
 {
     // On entry, all the user color schemes have been loaded. Therefore, any insertions of inbox or fragment schemes
     // will fail; we can leverage this to detect when they are equivalent and delete the user's duplicate copies.
@@ -931,9 +944,12 @@ void SettingsLoader::_addOrMergeUserColorScheme(const winrt::com_ptr<implementat
                 userSettings.colorSchemeRemappings.emplace(newScheme->Name(), newName);
                 // And re-add it to the end.
                 userSettings.colorSchemes.emplace(newName, std::move(existingScheme));
+                return true;
             }
         }
+        return false;
     }
+    return true;
 }
 
 // As the name implies it executes a generator.
@@ -1257,6 +1273,7 @@ CascadiaSettings::CascadiaSettings(SettingsLoader&& loader) :
     _activeProfiles = winrt::single_threaded_observable_vector(std::move(activeProfiles));
     _warnings = winrt::single_threaded_vector(std::move(warnings));
     _themesChangeLog = std::move(loader.userSettings.themesChangeLog);
+    _fragmentExtensions = winrt::single_threaded_vector(std::move(loader.fragmentExtensions));
 
     _resolveDefaultProfile();
     _resolveNewTabMenuProfiles();

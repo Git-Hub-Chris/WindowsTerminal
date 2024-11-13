@@ -1,0 +1,75 @@
+<!--
+    Copyright (c) Microsoft Corporation. All rights reserved. Licensed under
+    the MIT License. See LICENSE in the project root for license information.
+-->
+<Page x:Class="Microsoft.Terminal.Settings.Editor.Extensions"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:Microsoft.Terminal.Settings.Editor"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:model="using:Microsoft.Terminal.Settings.Model"
+      xmlns:mtu="using:Microsoft.Terminal.UI"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      mc:Ignorable="d">
+
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="CommonResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <StackPanel Style="{StaticResource SettingsStackStyle}"
+                Spacing="20">
+        <StackPanel>
+            <!--  Grouping: Active Extensions  -->
+            <TextBlock x:Uid="Globals_ActiveExtensionsHeader"
+                   Style="{StaticResource TextBlockSubHeaderStyle}" />
+            <ItemsControl ItemsSource="{x:Bind ViewModel.FragmentExtensions, Mode=OneWay}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="model:FragmentSettings">
+                        <local:SettingContainer Header="{x:Bind Source}">
+                            <ToggleSwitch Toggled="ExtensionToggled"
+                                          Loaded="ExtensionLoaded"
+                                          Tag="{x:Bind Source}"
+                                          Style="{StaticResource ToggleSwitchInExpanderStyle}" />
+                        </local:SettingContainer>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </StackPanel>
+
+        <StackPanel>
+            <!--  Grouping: Modified Profiles  -->
+            <TextBlock x:Uid="Globals_ModifiedProfilesHeader"
+                       Style="{StaticResource TextBlockSubHeaderStyle}" />
+            <TextBlock FontStyle="Italic">Coming soon!</TextBlock>
+
+            <!--TODO CARLOS: ItemsRepeater of Expanders-->
+
+        </StackPanel>
+
+        <StackPanel>
+            <!--  Grouping: Added Profiles  -->
+            <TextBlock x:Uid="Globals_AddedProfilesHeader"
+                       Style="{StaticResource TextBlockSubHeaderStyle}" />
+            <TextBlock FontStyle="Italic">Coming soon!</TextBlock>
+
+            <!--TODO CARLOS: ItemsRepeater of Expanders-->
+
+        </StackPanel>
+
+        <StackPanel>
+            <!--  Grouping: Added Color Schemes  -->
+            <TextBlock x:Uid="Globals_AddedColorSchemesHeader"
+               Style="{StaticResource TextBlockSubHeaderStyle}" />
+            <TextBlock FontStyle="Italic">Coming soon!</TextBlock>
+
+            <!--TODO CARLOS: ItemsRepeater of Expanders-->
+
+        </StackPanel>
+    </StackPanel>
+</Page>

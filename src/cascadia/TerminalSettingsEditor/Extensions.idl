@@ -1,0 +1,26 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+namespace Microsoft.Terminal.Settings.Editor
+{
+    [default_interface] runtimeclass Extensions : Windows.UI.Xaml.Controls.Page
+    {
+        Extensions();
+        ExtensionsViewModel ViewModel { get; };
+    }
+
+    [default_interface] runtimeclass ExtensionsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        ExtensionsViewModel(Microsoft.Terminal.Settings.Model.CascadiaSettings settings);
+
+        // Views
+        Windows.Foundation.Collections.IVectorView<IInspectable> FragmentExtensions { get; };
+        Windows.Foundation.Collections.IVectorView<IInspectable> ProfilesModified { get; };
+        Windows.Foundation.Collections.IVectorView<IInspectable> ProfilesAdded { get; };
+        Windows.Foundation.Collections.IVectorView<IInspectable> ColorSchemesAdded { get; };
+
+        // Methods
+        Boolean GetExtensionState(String extensionSource);
+        void SetExtensionState(String extensionSource, Boolean enableExt);
+    }
+}
