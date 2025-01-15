@@ -175,6 +175,8 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         Editor::AppearanceViewModel _defaultAppearanceViewModel;
         Windows::UI::Core::CoreDispatcher _dispatcher;
 
+        winrt::Windows::UI::Xaml::Thickness _parsedPadding;
+
         void _InitializeCurrentBellSounds();
         void _PrepareModelForBellSoundModification();
         void _MarkDuplicateBellSoundDirectories();
@@ -185,17 +187,6 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
 
         Model::CascadiaSettings _appSettings;
         Editor::AppearanceViewModel _unfocusedAppearanceViewModel;
-
-        enum class PaddingDirection
-        {
-            Left = 0,
-            Top = 1,
-            Right = 2,
-            Bottom = 3
-        };
-
-        winrt::hstring _GetNewPadding(PaddingDirection paddingDirection, double newPaddingValue) const;
-        double _GetPaddingValue(PaddingDirection paddingDirection) const;
         void _UpdateBuiltInIcons();
         void _DeduceCurrentIconType();
         void _DeduceCurrentBuiltInIcon();
